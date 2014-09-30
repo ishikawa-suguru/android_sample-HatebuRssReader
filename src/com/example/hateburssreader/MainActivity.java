@@ -13,9 +13,14 @@ import android.util.Log;
 import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -53,13 +58,12 @@ public class MainActivity extends ActionBarActivity {
 			con.disconnect();
 		}
 
-		TextView text = (TextView) findViewById(R.id.textView);
 //		text.setText(body);
 
 		String title = "";
 		String link = "";
 		String body2 = "";
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+		ArrayAdapter<ListItem> adapter = new ArrayAdapter<ListItem>(
 	            this, android.R.layout.simple_list_item_1);
 		XmlPullParser xmlPullParser = Xml.newPullParser();
 		try {
@@ -76,7 +80,8 @@ public class MainActivity extends ActionBarActivity {
 				}
 				if (title != "" && link != "") {
 //					body2 += ("title:" + title + ", link:" + link + "¥n");
-					adapter.add(title);
+					ListItem item = new ListItem(title, link);
+					adapter.add(item);
 					title = "";
 					link = "";
 				}
@@ -88,6 +93,22 @@ public class MainActivity extends ActionBarActivity {
 //		text.setText(body2);
 		ListView listView = (ListView) findViewById(R.id.listView1);
 		listView.setAdapter(adapter);
+		listView.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3) {
+				ListView parent = (ListView) arg0;
+				ListItem item = (ListItem)parent.getItemAtPosition(arg2);
+				String link = item.getLink();
+				WebView webview = new WebView(arg0.getContext());
+				webview.setWebViewClient(new WebViewClient());
+				webview.loadUrl(link);
+				FrameLayout layout = (FrameLayout)findViewById(R.id.FrameLayout1);
+				layout.addView(webview);
+			}
+			
+		});
 	}
 
 	@Override
